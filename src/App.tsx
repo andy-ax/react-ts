@@ -64,7 +64,58 @@ class OKButton extends Component<buttonArg> {
     handleClick(e: React.MouseEvent) {
         console.log(this.props.text);
     }
-} 
+}
+
+type tabsArg = Readonly<{
+    children: any;
+    activeIndex: number
+}>
+class Tabs extends Component<tabsArg> {
+    constructor(props: tabsArg) {
+        super(props);
+    }
+
+    render() {
+        const {children, activeIndex} = this.props;
+
+        return <div className="tabs" >{this.getTabPanes()}</div>
+    }
+
+    // 父组件组装子组件并给子组件添加属性
+    getTabPanes() {
+        const {children, activeIndex} = this.props;
+
+        return React.Children.map(children, (child) => {
+            if (!child) {
+                return;
+            }
+
+            const childIndex = child.props.index;
+            const isActive = activeIndex === childIndex;
+            return React.cloneElement(child, 
+                // 给子组件添加的属性
+                {
+                    isActive,
+                }
+            )
+        })
+    }
+}
+type tabPaneArg = {
+    children: string;
+    index: number; // 给父组件调用的参数，子组件自己不使用
+    isActive?: boolean; // 父组件传递给子组件的参数，子组件初始化时不传入
+};
+class TabPane extends Component<tabPaneArg> {
+
+    render() {
+        const {children, isActive} = this.props;
+        return <div 
+            className={`tabpane ${isActive ? 'active-tabpen' : 'unactive-tabpen'}`}
+        >{children}</div>
+    }
+}
+
 
 function App() {
   return (
@@ -74,6 +125,11 @@ function App() {
         <H3 title="name">hello world!</H3>
         <CopyrightP beforeCRText="cc" afterCRText="2015"></CopyrightP>
         <OKButton color="#eee"></OKButton>
+        <Tabs activeIndex={1}>
+            <TabPane index={1}>tab1</TabPane>
+            <TabPane index={2}>tab2</TabPane>
+            <TabPane index={3}>tab3</TabPane>
+        </Tabs>
       </header>
     </div>
   );
