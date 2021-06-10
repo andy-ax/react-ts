@@ -1,13 +1,15 @@
 import React, { Children, Component, MouseEventHandler } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { count } from 'console';
 
 type h3arg = {
   children: string;
   title: string;
 }
 // react 无状态函数
-const H3 = ({children, title}: h3arg) => {
+const H3 = ({children, title}: h3arg, context: any) => {
+    console.log(context);
     return <h3 title={title}>{children}</h3>
 }
 
@@ -25,14 +27,23 @@ type buttonArg = Readonly<{
     background?: string;
     text?: string;
 }>
+type okButtomState = {
+    count: number;
+}
 // 使用class设置组件
 class OKButton extends Component<buttonArg> {
 
+    state: okButtomState;
+
     constructor(props: buttonArg) {
         super(props);
-        console.log(this.props)
+        console.log(this.props);
+        this.state = {
+            count: 0
+        };
     }
 
+    // react 给组件设置的属性，为props的默认值
     static defaultProps: buttonArg = {
         color: '#fff',
         background: '#33f',
@@ -56,15 +67,24 @@ class OKButton extends Component<buttonArg> {
             onClick={this.handleClick.bind(this)}
         >
             {/* style的声明方式2：使用object */}
-            <em style={style as any}>{text}</em>
+            <em style={style as any}>{text + ' ' + this.state.count}</em>
         </button>
     }
 
     // 事件e的声明，必须用React自己的event类型
     handleClick(e: React.MouseEvent) {
-        console.log(this.props.text);
+        e.stopPropagation();
+        const count = this.state.count;
+        // react组件自带的state与setState
+        this.setState({
+            count: count + 1
+        })
     }
 } 
+
+class listUl extends Component {
+    
+}
 
 function App() {
   return (
