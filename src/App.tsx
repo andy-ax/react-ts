@@ -132,9 +132,30 @@ class TabPane extends Component<tabPaneArg> {
     }
 }
 
+class FatherComponent extends Component {
+    onChange(value: any) {
+        console.log(value);
+    }
 
-class listUl extends Component {
-    
+    render() {
+
+        return <div>{this.props.children}</div>
+    }
+}
+
+class ChildComponent extends Component {
+    handleClick() {
+        debugger
+        console.log(this.props)
+        // this.props.onChange(111);
+    }
+    render() {
+        return (
+            <div>
+                <button onClick={this.handleClick.bind(this)}>子组件</button>
+            </div>
+        )
+    }
 }
 
 function App() {
@@ -150,6 +171,9 @@ function App() {
             <TabPane index={2}>tab2</TabPane>
             <TabPane index={3}>tab3</TabPane>
         </Tabs>
+        <FatherComponent>
+            <ChildComponent></ChildComponent>
+        </FatherComponent>
       </header>
     </div>
   );
