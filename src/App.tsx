@@ -82,6 +82,8 @@ class OKButton extends Component<buttonArg> {
     }
 }
 
+
+// 动态子组件
 type tabsArg = Readonly<{
     children: any;
     activeIndex: number
@@ -132,27 +134,126 @@ class TabPane extends Component<tabPaneArg> {
     }
 }
 
+// 组件间通信
+type childArg = Readonly<{
+    text:　string;
+    checked: boolean;
+    onChange: React.ChangeEventHandler;
+}>;
+type fatherArg = Readonly<{
+    list: any[];
+}>;
+class ChildComponent extends Component<childArg> {
 
-class listUl extends Component {
-    
+    static defaultProps = {
+        text: '',
+        checked: false,
+    }
+
+    render() {
+        return <li>
+            <input 
+                type="checkbox" 
+                checked={this.props.checked} 
+                // 子组件触发父组件事件
+                onChange={this.props.onChange}
+            />
+            <p>{this.props.text}</p>
+        </li>
+    }
+}
+class FatherComponent extends Component<fatherArg> {
+
+    active: boolean[] = [];
+
+    render() {
+        return <div>
+            <ul>
+                {this.childList()}
+            </ul>
+        </div>
+    }
+
+    childList() {
+        return this.props.list.map((x, i) => {
+            // 父组件传值给子组件
+            return <ChildComponent 
+                key={`list-${i}`}
+                text={x.text}
+                checked={x.select}
+                // 添加给子组件调用的自定义事件
+                onChange={this.onChildChange.bind(this, x, i)}
+            ></ChildComponent>
+        })
+    }
+
+    // 自定义事件
+    onChildChange(item: any, i: number) {
+        const list = this.props.list;
+        list[i].select = !list[i].select
+        // 通过setState更新数据
+        this.setState({
+            list,
+        });
+    }
+}
+
+// 组件的生命周期
+class LifeCycleComponent extends Component {
+
+    componentWillMount() {
+
+    }
+    componentDidMount() {
+
+    }
+
+    componentWillUnmount() {
+
+    }
+
+    componentWillReceiveProps() {
+
+    }
+
+
+    render() {
+        return <div></div>
+    }
 }
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-          {/* react组件的引用方式 */}
-        <H3 title="name">hello world!</H3>
-        <CopyrightP beforeCRText="cc" afterCRText="2015"></CopyrightP>
-        <OKButton color="#eee"></OKButton>
-        <Tabs activeIndex={1}>
-            <TabPane index={1}>tab1</TabPane>
-            <TabPane index={2}>tab2</TabPane>
-            <TabPane index={3}>tab3</TabPane>
-        </Tabs>
-      </header>
-    </div>
-  );
+    const list = [
+        {
+            text: '子组件1',
+            select: false,
+        },
+        {
+            text: '子组件2',
+            select: false,
+        },
+        {
+            text: '子组件3',
+            select: false,
+        },
+    ];
+    return (
+        <div className="App">
+            <header className="App-header">
+                {/* react组件的引用方式 */}
+            <H3 title="name">hello world!</H3>
+            <CopyrightP beforeCRText="cc" afterCRText="2015"></CopyrightP>
+            <OKButton color="#eee"></OKButton>
+            <Tabs activeIndex={1}>
+                <TabPane index={1}>tab1</TabPane>
+                <TabPane index={2}>tab2</TabPane>
+                <TabPane index={3}>tab3</TabPane>
+            </Tabs>
+            <FatherComponent list={list} />
+            <LifeCycleComponent />
+            </header>
+        </div>
+    );
 }
 
 
