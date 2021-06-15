@@ -1,5 +1,8 @@
 import React, { Children, Component, MouseEventHandler } from 'react';
 import logo from './logo.svg';
+import './App.css'
+// css module
+import style from './test.module.css'
 import { count } from 'console';
 
 type h3arg = {
@@ -154,7 +157,11 @@ class ChildComponent extends Component {
     render() {
         return (
             <div >
-                <button onClick={this.handleClick.bind(this)}>子组件</button>
+                <button 
+                    onClick={this.handleClick.bind(this)}
+                    // class module
+                    className={style.cssTest}
+                >子组件</button>
             </div>
         )
     }
