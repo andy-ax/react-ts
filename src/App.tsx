@@ -1,6 +1,5 @@
 import React, { Children, Component, MouseEventHandler } from 'react';
 import logo from './logo.svg';
-import './App.css';
 import { count } from 'console';
 
 type h3arg = {
@@ -144,6 +143,9 @@ class FatherComponent extends Component {
 }
 
 class ChildComponent extends Component {
+
+    
+
     handleClick() {
         debugger
         console.log(this.props)
@@ -151,10 +153,115 @@ class ChildComponent extends Component {
     }
     render() {
         return (
-            <div>
+            <div >
                 <button onClick={this.handleClick.bind(this)}>子组件</button>
             </div>
         )
+    }
+}
+
+// 组件的生命周期
+type LifeCycleChildArg = Readonly<{
+    text: string;
+}>
+type LifeCycleFatherArg = Readonly<{
+    text: string;
+    name: string;
+}>
+class LifeCycleChild extends Component<LifeCycleChildArg> {
+
+    constructor(props: LifeCycleChildArg) {
+        super(props);
+        console.log('child init');
+    }
+
+    componentWillMount() {
+        console.log('child component will mount');
+    }
+
+    componentDidMount() {
+        console.log('child component did mount');
+    }
+
+    componentWillUnmount() {
+        console.log('child component will unmount');
+    }
+
+    componentWillReceiveProps(nextProps: LifeCycleChildArg) {
+        // 父组件更新props时触发,在所有update生命周期执行前执行
+        // 在该生命周期钩子内执行setState将不会二次渲染
+        console.log('child component will receive props');
+    }
+
+    shouldComponentUpdate(nextProps: LifeCycleChildArg, nextState: LifeCycleChildArg, nextContext: any) {
+        console.log('child should component update');
+        return true;
+    }
+
+    componentWillUpdate(nextProps: LifeCycleChildArg, nextState: LifeCycleChildArg, nextContext: any) {
+        console.log('child component will update');
+    }
+
+    componentDidUpdate(prevProps: LifeCycleChildArg, prevState: LifeCycleChildArg, prevContext: any) {
+        console.log('child component did update');
+    }
+
+    render() {
+        console.log('child render');
+        return <p>{this.props.text}</p>
+    }
+}
+
+class LifeCycleFather <T> extends Component<LifeCycleFatherArg>{
+
+    constructor(props: LifeCycleFatherArg) {
+        super(props);
+        console.log('father init');
+    }
+
+    componentWillMount() {
+        // 组件装载前执行
+        // 在该生命周期钩子内执行setState将不会二次渲染
+        console.log('father component will mount');
+    }
+
+    componentDidMount() {
+        // 组件装载后执行 只有所有子组件全部装载完成后才会执行
+        console.log('father component did mount');
+        setTimeout(() => {
+            this.setState({
+                text: '子组件111'
+            })
+        }, 1000)
+    }
+
+    componentWillUnmount() {
+        // 组件卸载前执行
+        console.log('father component will unmount');
+    }
+
+    shouldComponentUpdate(nextProps: LifeCycleFatherArg, nextState: T, nextContext: any) {
+        // 组件即将更新时执行，返回false则后续的update生命周期不会执行，数据也不会更新
+        // 默认情况下返回true,所以父组件数据更新时所有子组件都会更新 可以通过该方法来进行性能优化
+        console.log('father should component update');
+        return true;
+    }
+
+    componentWillUpdate(nextProps: LifeCycleFatherArg, nextState: T, nextContext: any) {
+        // 组件即将更新时执行
+        console.log('father component will update');
+    }
+
+    componentDidUpdate(prevProps: LifeCycleFatherArg, prevState: T, prevContext: any) {
+        // 组件更新完成后执行 只有所有子组件全部更新完成后才会执行
+        console.log('father component did update');
+    }
+
+    render() {
+        console.log('father render');
+        return <div>
+            <LifeCycleChild text={this.props.text} />
+        </div>
     }
 }
 
@@ -174,6 +281,7 @@ function App() {
         <FatherComponent>
             <ChildComponent></ChildComponent>
         </FatherComponent>
+        <LifeCycleFather text={'子组件'} name={'父组件'}></LifeCycleFather>
       </header>
     </div>
   );
