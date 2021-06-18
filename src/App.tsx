@@ -4,6 +4,9 @@ import './App.css'
 // css module
 import style from './test.module.css'
 import { count } from 'console';
+import { EventEmitter } from 'events'; 
+import HigherOrderComponent from './higher-order-component'
+const event =  new EventEmitter();
 
 type h3arg = {
   children: string;
@@ -37,12 +40,16 @@ class OKButton extends Component<buttonArg> {
 
     state: okButtomState;
 
+    ref: React.RefObject<any>;
+
     constructor(props: buttonArg) {
         super(props);
         console.log(this.props);
         this.state = {
             count: 0
         };
+        // ref
+        this.ref = React.createRef();
     }
 
     // react 给组件设置的属性，为props的默认值
@@ -62,6 +69,8 @@ class OKButton extends Component<buttonArg> {
 
         return <button 
             className={`btn btn-${text}`} 
+            // ref设置
+            ref={this.ref}
             // style的声明方式1：使用双大括号 其实也是使用object
             style={{background: background as string, border: 'none'}}
             // 事件的绑定 如果不使用bind，handle函数将无法正确访问class中的内容 
@@ -75,6 +84,8 @@ class OKButton extends Component<buttonArg> {
 
     // 事件e的声明，必须用React自己的event类型
     handleClick(e: React.MouseEvent) {
+        // ref
+        this.ref.current.focus();
         e.stopPropagation();
         const count = this.state.count;
         // react组件自带的state与setState
@@ -136,7 +147,7 @@ class TabPane extends Component<tabPaneArg> {
     }
 }
 
-// 组件间通信
+// 父子组件间通信
 type childArg = Readonly<{
     text:　string;
     checked: boolean;
@@ -308,6 +319,42 @@ class LifeCycleFather <T> extends Component<LifeCycleFatherArg>{
     }
 }
 
+// 使用event emitter 发布订阅通信
+class GrandsonComponent extends Component {
+    color: string = '';
+
+    constructor(props: any) {
+        super(props);
+        event.on('color', (value) => {
+            this.color = value;
+            this.forceUpdate();
+            event.removeAllListeners('color');
+        })
+    }
+
+    render() {
+        return <li style={{background: this.color}}> 
+            <span>111</span> 
+        </li>
+    }
+}
+
+class GrandpaComponent extends Component {
+
+    constructor(props: any) {
+        super(props);
+        setTimeout(() => {
+            event.emit('color', '#33f');
+        })
+    }
+
+    render() {
+        return <div> 
+            <GrandsonComponent></GrandsonComponent>
+        </div>
+    }
+}
+
 function App() {
     const list = [
         {
@@ -337,6 +384,8 @@ function App() {
             </Tabs>
             <FatherComponent list={list} />
             <LifeCycleFather text={'子组件'} name={'父组件'}></LifeCycleFather>
+            <GrandpaComponent></GrandpaComponent>
+            <HigherOrderComponent></HigherOrderComponent>
             </header>
         </div>
     );
