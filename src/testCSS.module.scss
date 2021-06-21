@@ -1,0 +1,12 @@
+.h3Element{
+    color: #fff;
+    div{
+        display: block;
+    }
+}
+$color: #aaa;
+:global{
+    .header{
+        font-size: 20px;
+    }
+}

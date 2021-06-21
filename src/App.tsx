@@ -1,18 +1,24 @@
 import React, { Children, Component, MouseEventHandler } from 'react';
+import { count } from 'console';
+import classNames from 'classnames'
+
 import logo from './logo.svg';
 import './App.css'
 // css module
 import style from './test.module.css'
-import { count } from 'console';
+import scssStyle from './testCSS.module.scss';
 
 type h3arg = {
-  children: string;
-  title: string;
+    children: string;
+    title: string;
 }
 // react 无状态函数
-const H3 = ({children, title}: h3arg, context: any) => {
+const H3 = ({ children, title }: h3arg, context: any) => {
     console.log(context);
-    return <h3 title={title}>{children}</h3>
+    return <h3 
+        title={title}
+        className={scssStyle.h3Element}
+    >{children}</h3>
 }
 
 type copyrightArg = {
@@ -20,7 +26,7 @@ type copyrightArg = {
     afterCRText: string;
 }
 // 使用数组对数据进行组装
-const CopyrightP = ({beforeCRText, afterCRText}: copyrightArg) => {
+const CopyrightP = ({ beforeCRText, afterCRText }: copyrightArg) => {
     return <p>{[beforeCRText, '©', afterCRText]}</p>
 }
 
@@ -53,17 +59,17 @@ class OKButton extends Component<buttonArg> {
     }
 
     render() {
-        const {color, text, background} = this.props;
+        const { color, text, background } = this.props;
 
         const style = {
             color,
             fontSize: '12px',
         }
 
-        return <button 
-            className={`btn btn-${text}`} 
+        return <button
+            className={`btn btn-${text}`}
             // style的声明方式1：使用双大括号 其实也是使用object
-            style={{background: background as string, border: 'none'}}
+            style={{ background: background as string, border: 'none' }}
             // 事件的绑定 如果不使用bind，handle函数将无法正确访问class中的内容 
             // handle也可以使用箭头函数来规避此问题
             onClick={this.handleClick.bind(this)}
@@ -96,14 +102,14 @@ class Tabs extends Component<tabsArg> {
     }
 
     render() {
-        const {children, activeIndex} = this.props;
+        const { children, activeIndex } = this.props;
 
         return <div className="tabs" >{this.getTabPanes()}</div>
     }
 
     // 父组件组装子组件并给子组件添加属性
     getTabPanes() {
-        const {children, activeIndex} = this.props;
+        const { children, activeIndex } = this.props;
 
         return React.Children.map(children, (child) => {
             if (!child) {
@@ -112,7 +118,7 @@ class Tabs extends Component<tabsArg> {
 
             const childIndex = child.props.index;
             const isActive = activeIndex === childIndex;
-            return React.cloneElement(child, 
+            return React.cloneElement(child,
                 // 给子组件添加的属性
                 {
                     isActive,
@@ -129,8 +135,8 @@ type tabPaneArg = {
 class TabPane extends Component<tabPaneArg> {
 
     render() {
-        const {children, isActive} = this.props;
-        return <div 
+        const { children, isActive } = this.props;
+        return <div
             className={`tabpane ${isActive ? 'active-tabpen' : 'unactive-tabpen'}`}
         >{children}</div>
     }
@@ -138,7 +144,7 @@ class TabPane extends Component<tabPaneArg> {
 
 // 组件间通信
 type childArg = Readonly<{
-    text:　string;
+    text: string;
     checked: boolean;
     onChange: React.ChangeEventHandler;
 }>;
@@ -154,9 +160,9 @@ class ChildComponent extends Component<childArg> {
 
     render() {
         return <li>
-            <input 
-                type="checkbox" 
-                checked={this.props.checked} 
+            <input
+                type="checkbox"
+                checked={this.props.checked}
                 // 子组件触发父组件事件
                 onChange={this.props.onChange}
             />
@@ -181,7 +187,7 @@ class FatherComponent extends Component<fatherArg> {
     childList() {
         return this.props.list.map((x, i) => {
             // 父组件传值给子组件
-            return <ChildComponent 
+            return <ChildComponent
                 // class module
                 key={`list-${i}`}
                 text={x.text}
@@ -255,7 +261,7 @@ class LifeCycleChild extends Component<LifeCycleChildArg> {
     }
 }
 
-class LifeCycleFather <T> extends Component<LifeCycleFatherArg>{
+class LifeCycleFather<T> extends Component<LifeCycleFatherArg>{
 
     constructor(props: LifeCycleFatherArg) {
         super(props);
@@ -325,18 +331,25 @@ function App() {
     ];
     return (
         <div className="App">
-            <header className="App-header">
+            <header 
+                // 插件 classnames的使用 
+                className={classNames({
+                    'App-header': true,
+                    'header': true
+                })}
+            >
                 {/* react组件的引用方式 */}
-            <H3 title="name">hello world!</H3>
-            <CopyrightP beforeCRText="cc" afterCRText="2015"></CopyrightP>
-            <OKButton color="#eee"></OKButton>
-            <Tabs activeIndex={1}>
-                <TabPane index={1}>tab1</TabPane>
-                <TabPane index={2}>tab2</TabPane>
-                <TabPane index={3}>tab3</TabPane>
-            </Tabs>
-            <FatherComponent list={list} />
-            <LifeCycleFather text={'子组件'} name={'父组件'}></LifeCycleFather>
+                <H3 title="name">hello world!</H3>
+                <CopyrightP beforeCRText="cc" afterCRText="2015"></CopyrightP>
+                {/* 将scss中的变量导出到js中 */}
+                <OKButton color={scssStyle.$color}></OKButton>
+                <Tabs activeIndex={1}>
+                    <TabPane index={1}>tab1</TabPane>
+                    <TabPane index={2}>tab2</TabPane>
+                    <TabPane index={3}>tab3</TabPane>
+                </Tabs>
+                <FatherComponent list={list} />
+                <LifeCycleFather text={'子组件'} name={'父组件'}></LifeCycleFather>
             </header>
         </div>
     );
